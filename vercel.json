@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://your-jobflow-backend.onrender.com/api/:path*"
+      "destination": "https://jobflow-backend-1v6a.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",
