@@ -43,12 +43,16 @@ const LandingPage = () => {
       <header className="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-extrabold text-white text-lg shadow-lg shadow-indigo-500/30">
-              JF
+            <img
+              src="/logo.png"
+              alt="JobFlow AI Logo"
+              className="w-10 h-10 rounded-xl object-cover shadow-lg shadow-indigo-500/30"
+            />
+            <div>
+              <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                JobFlow AI
+              </span>
             </div>
-            <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-              JobFlow
-            </span>
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-300">

@@ -38,10 +38,12 @@ const RegisterPage = () => {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center relative z-10">
         <Link to="/" className="inline-flex items-center gap-3 group">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-extrabold text-xl shadow-xl shadow-indigo-500/30 group-hover:scale-105 transition-transform">
-            JF
-          </div>
-          <span className="text-2xl font-black tracking-tight text-white">JobFlow</span>
+          <img
+            src="/logo.png"
+            alt="JobFlow AI Logo"
+            className="w-12 h-12 rounded-2xl object-cover shadow-xl shadow-indigo-500/30 group-hover:scale-105 transition-transform"
+          />
+          <span className="text-2xl font-black tracking-tight text-white">JobFlow AI</span>
         </Link>
 
         <h2 className="mt-6 text-2xl font-bold tracking-tight text-slate-100">

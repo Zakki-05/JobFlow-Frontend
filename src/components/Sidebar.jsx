@@ -54,15 +54,17 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Brand Header */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800/80">
           <NavLink to="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-              JF
-            </div>
+            <img
+              src="/logo.png"
+              alt="JobFlow AI Logo"
+              className="w-10 h-10 rounded-xl object-cover shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform"
+            />
             <div>
               <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-                JobFlow
+                JobFlow AI
               </span>
-              <span className="block text-[10px] uppercase font-mono tracking-widest text-indigo-400 font-semibold">
-                Fresher Placement Suite
+              <span className="block text-[9px] uppercase font-mono tracking-wider text-cyan-400 font-semibold">
+                Jobs Flow Opportunities
               </span>
             </div>
           </NavLink>
