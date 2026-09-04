@@ -50,3 +50,26 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+// AI Service API Helpers
+export const analyzeResumeAI = async (payload) => {
+  if (payload instanceof FormData) {
+    return api.post('/resumes/ai-analyze/', payload, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  }
+  return api.post('/resumes/ai-analyze/', payload);
+};
+
+export const calculateAIMatch = async (jobData) => {
+  return api.post('/jobs/ai-match/', { job_data: jobData });
+};
+
+export const fetchAIRecommendations = async () => {
+  return api.get('/jobs/ai-recommendations/');
+};
+
+export const sendAICareerAssistantMessage = async (messages, jobContext = null) => {
+  return api.post('/jobs/ai-assistant/', { messages, job_context: jobContext });
+};
+
