@@ -14,7 +14,9 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const result = await login(username, password);
+    const cleanUsername = username.trim();
+    const cleanPassword = password.trim();
+    const result = await login(cleanUsername, cleanPassword);
     setLoading(false);
     if (result.success) {
       navigate('/dashboard');
