@@ -26,6 +26,11 @@ import {
   Zap,
   Clock,
   FileJson,
+  Palette,
+  Tag,
+  Plus,
+  Trash2,
+  Cpu,
 } from 'lucide-react';
 
 const SettingsPage = () => {
@@ -71,7 +76,42 @@ const SettingsPage = () => {
           salary: 10,
           aiTone: 'professional',
           minMatchScore: 70,
-          autoAnalyzeResumes: true,
+          customInstructions: 'Prioritize modern full-stack web engineering, React 18, and scalable API architecture.',
+        };
+  });
+
+  // Theme & Appearance State (persisted to localStorage)
+  const [themeSettings, setThemeSettings] = useState(() => {
+    const saved = localStorage.getItem('jobflow_theme_settings');
+    return saved
+      ? JSON.parse(saved)
+      : {
+          accentColor: 'indigo',
+          currency: 'INR',
+          salaryFormat: 'lpa',
+        };
+  });
+
+  // Automation & Tags State (persisted to localStorage)
+  const [automationSettings, setAutomationSettings] = useState(() => {
+    const saved = localStorage.getItem('jobflow_automation');
+    return saved
+      ? JSON.parse(saved)
+      : {
+          autoArchiveDays: 14,
+          customTags: ['FAANG', 'High Priority', 'Referral Required', 'Remote Only'],
+        };
+  });
+  const [newTagInput, setNewTagInput] = useState('');
+
+  // API Key State (persisted to localStorage)
+  const [apiKeys, setApiKeys] = useState(() => {
+    const saved = localStorage.getItem('jobflow_api_keys');
+    return saved
+      ? JSON.parse(saved)
+      : {
+          openaiKey: '',
+          geminiKey: '',
         };
   });
 
@@ -84,7 +124,6 @@ const SettingsPage = () => {
           emailSummaries: true,
           followUpDays: 7,
           interviewAlerts: true,
-          skillQuizReminders: false,
         };
   });
 
@@ -124,7 +163,45 @@ const SettingsPage = () => {
     localStorage.setItem('jobflow_ai_weights', JSON.stringify(updated));
   };
 
-  // Persist Notifications to localStorage
+  // Persist Theme Settings
+  const handleThemeChange = (key, value) => {
+    const updated = { ...themeSettings, [key]: value };
+    setThemeSettings(updated);
+    localStorage.setItem('jobflow_theme_settings', JSON.stringify(updated));
+    showToast('Theme & preference updated!', 'success');
+  };
+
+  // Tag Management
+  const handleAddTag = () => {
+    if (!newTagInput.trim()) return;
+    if (automationSettings.customTags.includes(newTagInput.trim())) {
+      showToast('Tag already exists.', 'info');
+      return;
+    }
+    const updatedTags = [...automationSettings.customTags, newTagInput.trim()];
+    const updated = { ...automationSettings, customTags: updatedTags };
+    setAutomationSettings(updated);
+    localStorage.setItem('jobflow_automation', JSON.stringify(updated));
+    setNewTagInput('');
+    showToast('Custom tag added!', 'success');
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    const updatedTags = automationSettings.customTags.filter((t) => t !== tagToRemove);
+    const updated = { ...automationSettings, customTags: updatedTags };
+    setAutomationSettings(updated);
+    localStorage.setItem('jobflow_automation', JSON.stringify(updated));
+    showToast('Tag removed.', 'info');
+  };
+
+  // API Key Saver
+  const handleSaveApiKeys = (e) => {
+    e.preventDefault();
+    localStorage.setItem('jobflow_api_keys', JSON.stringify(apiKeys));
+    showToast('Custom API keys saved securely in local storage!', 'success');
+  };
+
+  // Persist Notifications
   const handleNotificationChange = (key, value) => {
     const updated = { ...notifications, [key]: value };
     setNotifications(updated);
@@ -178,6 +255,11 @@ const SettingsPage = () => {
           username: user?.username,
           email: user?.email,
         },
+        settings: {
+          ai_weights: aiWeights,
+          theme: themeSettings,
+          automation: automationSettings,
+        },
         applications: response.data,
       };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], {
@@ -191,7 +273,7 @@ const SettingsPage = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('Job application data exported successfully!', 'success');
+      showToast('Full JobFlow data backup exported successfully!', 'success');
     } catch (err) {
       showToast('Failed to export data.', 'error');
     }
@@ -217,9 +299,10 @@ const SettingsPage = () => {
 
   const tabs = [
     { id: 'profile', label: 'Profile & Career', icon: User },
-    { id: 'ai', label: 'AI Engine', icon: Bot },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'security', label: 'Security & Export', icon: Shield },
+    { id: 'ai', label: 'AI Engine & Prompts', icon: Bot },
+    { id: 'theme', label: 'Theme & Formatting', icon: Palette },
+    { id: 'automation', label: 'Tags & Pipeline', icon: Tag },
+    { id: 'security', label: 'Security & API Keys', icon: Shield },
     { id: 'system', label: 'Diagnostics & Demo', icon: Database },
   ];
 
@@ -237,7 +320,7 @@ const SettingsPage = () => {
                 Advanced Control Center
               </h1>
               <p className="text-xs text-slate-400 mt-0.5">
-                Customize AI scoring weights, sync career goals, configure alerts, and manage system diagnostics.
+                Customize AI scoring weights, system prompts, theme styles, custom tags, and API keys.
               </p>
             </div>
           </div>
@@ -343,9 +426,6 @@ const SettingsPage = () => {
                   <Briefcase className="w-5 h-5 text-indigo-400" />
                   Career Target & Profile Headline
                 </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Used by JobFlow AI to match incoming jobs against your target criteria.
-                </p>
               </div>
             </div>
 
@@ -466,7 +546,7 @@ const SettingsPage = () => {
         </form>
       )}
 
-      {/* Tab 2: AI & Matching Engine */}
+      {/* Tab 2: AI Engine & Custom Prompts */}
       {activeTab === 'ai' && (
         <div className="space-y-6">
           <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
@@ -476,7 +556,7 @@ const SettingsPage = () => {
                 AI Match Scoring Weight Preferences
               </h2>
               <p className="text-xs text-slate-400 mt-1">
-                Customize how the 5-factor AI match algorithm weights job descriptions against your resume and profile.
+                Customize how the 5-factor AI match algorithm weights job descriptions against your resume.
               </p>
             </div>
 
@@ -516,116 +596,238 @@ const SettingsPage = () => {
             <div className="border-b border-slate-800 pb-4">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-violet-400" />
-                AI Persona & Recommendation Thresholds
+                Custom AI System Prompt Modifier
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Inject custom instructions into AI resume evaluation and interview recommendations.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Custom AI Focus Instructions</label>
+                <textarea
+                  rows={3}
+                  value={aiWeights.customInstructions}
+                  onChange={(e) => handleAiWeightChange('customInstructions', e.target.value)}
+                  placeholder="e.g. Focus on full-stack web architecture, React 18, and scalable API performance."
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-2">AI Response Tone</label>
+                  <select
+                    value={aiWeights.aiTone}
+                    onChange={(e) => handleAiWeightChange('aiTone', e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                  >
+                    <option value="professional">Professional & Concise (Executive)</option>
+                    <option value="detailed">In-depth Technical & Detailed Code Reviewer</option>
+                    <option value="coach">Interview Preparation Coach & Mock Practice</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-2">
+                    Minimum Recommendation Score: <span className="text-indigo-400">{aiWeights.minMatchScore}%</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="50"
+                    max="95"
+                    step="5"
+                    value={aiWeights.minMatchScore}
+                    onChange={(e) => handleAiWeightChange('minMatchScore', parseInt(e.target.value, 10))}
+                    className="w-full accent-indigo-500 bg-slate-800 rounded-lg cursor-pointer h-2"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 3: Theme & Formatting */}
+      {activeTab === 'theme' && (
+        <div className="space-y-6">
+          <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+            <div className="border-b border-slate-800 pb-4">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <Palette className="w-5 h-5 text-indigo-400" />
+                Accent Color & Styling Preferences
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                { id: 'indigo', name: 'Indigo / Violet', bg: 'from-indigo-600 to-violet-600' },
+                { id: 'cyan', name: 'Cyber Cyan', bg: 'from-cyan-500 to-blue-600' },
+                { id: 'emerald', name: 'Emerald Teal', bg: 'from-emerald-500 to-teal-600' },
+              ].map((color) => (
+                <button
+                  key={color.id}
+                  type="button"
+                  onClick={() => handleThemeChange('accentColor', color.id)}
+                  className={`p-4 rounded-2xl border text-left transition-all ${
+                    themeSettings.accentColor === color.id
+                      ? 'border-indigo-500 bg-indigo-500/10'
+                      : 'border-slate-800 bg-slate-900/60 hover:border-slate-700'
+                  }`}
+                >
+                  <div className={`w-full h-8 rounded-xl bg-gradient-to-r ${color.bg} mb-3`} />
+                  <span className="text-xs font-bold text-white">{color.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+            <div className="border-b border-slate-800 pb-4">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-emerald-400" />
+                Currency & Salary Display Preferences
               </h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">AI Career Assistant Tone</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Default Currency</label>
                 <select
-                  value={aiWeights.aiTone}
-                  onChange={(e) => handleAiWeightChange('aiTone', e.target.value)}
+                  value={themeSettings.currency}
+                  onChange={(e) => handleThemeChange('currency', e.target.value)}
                   className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
                 >
-                  <option value="professional">Professional & Concise (Executive)</option>
-                  <option value="detailed">In-depth Technical & Detailed Code Reviewer</option>
-                  <option value="coach">Interview Preparation Coach & Mock Practice</option>
+                  <option value="INR">₹ INR (Indian Rupee)</option>
+                  <option value="USD">$ USD (US Dollar)</option>
+                  <option value="EUR">€ EUR (Euro)</option>
+                  <option value="GBP">£ GBP (British Pound)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">
-                  Minimum AI Match Threshold for Auto-Recommendations: <span className="text-indigo-400">{aiWeights.minMatchScore}%</span>
-                </label>
-                <input
-                  type="range"
-                  min="50"
-                  max="95"
-                  step="5"
-                  value={aiWeights.minMatchScore}
-                  onChange={(e) => handleAiWeightChange('minMatchScore', parseInt(e.target.value, 10))}
-                  className="w-full accent-indigo-500 bg-slate-800 rounded-lg cursor-pointer h-2"
-                />
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Salary Display Format</label>
+                <select
+                  value={themeSettings.salaryFormat}
+                  onChange={(e) => handleThemeChange('salaryFormat', e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="lpa">LPA Format (e.g. 12.0 LPA)</option>
+                  <option value="full">Full Amount (e.g. ₹12,00,000)</option>
+                </select>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Tab 3: Notifications & Automation */}
-      {activeTab === 'notifications' && (
-        <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
-          <div className="border-b border-slate-800 pb-4">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <Bell className="w-5 h-5 text-indigo-400" />
-              Application Follow-up Reminders & Alerts
-            </h2>
-            <p className="text-xs text-slate-400 mt-1">
-              Automate tracking schedule and interview reminders.
-            </p>
-          </div>
+      {/* Tab 4: Tags & Pipeline */}
+      {activeTab === 'automation' && (
+        <div className="space-y-6">
+          <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+            <div className="border-b border-slate-800 pb-4">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <Tag className="w-5 h-5 text-indigo-400" />
+                Custom Job Tags & Categories
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Create custom tags to organize your tracked applications.
+              </p>
+            </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <div>
-                <span className="text-xs font-bold text-white block">Email Application Summaries</span>
-                <span className="text-[11px] text-slate-400">Receive weekly summaries of active job applications.</span>
-              </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter tag name (e.g. FAANG, Tier 1, High Bonus)..."
+                value={newTagInput}
+                onChange={(e) => setNewTagInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+              />
               <button
                 type="button"
-                onClick={() => handleNotificationChange('emailSummaries', !notifications.emailSummaries)}
-                className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${
-                  notifications.emailSummaries ? 'bg-indigo-600 justify-end' : 'bg-slate-800 justify-start'
-                }`}
+                onClick={handleAddTag}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all"
               >
-                <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                <Plus className="w-4 h-4" />
+                <span>Add Tag</span>
               </button>
             </div>
 
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <div>
-                <span className="text-xs font-bold text-white block">Interview Preparation Alerts</span>
-                <span className="text-[11px] text-slate-400">Alerts 24 hours prior to scheduled technical interviews.</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleNotificationChange('interviewAlerts', !notifications.interviewAlerts)}
-                className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${
-                  notifications.interviewAlerts ? 'bg-indigo-600 justify-end' : 'bg-slate-800 justify-start'
-                }`}
-              >
-                <div className="w-4 h-4 rounded-full bg-white shadow-md" />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <div>
-                <span className="text-xs font-bold text-white block">Follow-up Reminder Interval</span>
-                <span className="text-[11px] text-slate-400">Days after submission to trigger follow-up alert.</span>
-              </div>
-              <select
-                value={notifications.followUpDays}
-                onChange={(e) => handleNotificationChange('followUpDays', parseInt(e.target.value, 10))}
-                className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
-              >
-                <option value={3}>3 Days</option>
-                <option value={7}>7 Days (Recommended)</option>
-                <option value={14}>14 Days</option>
-              </select>
+            <div className="flex flex-wrap gap-2 pt-2">
+              {automationSettings.customTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-200"
+                >
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(tag)}
+                    className="text-slate-500 hover:text-rose-400 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </span>
+              ))}
             </div>
           </div>
         </div>
       )}
 
-      {/* Tab 4: Security & Export */}
+      {/* Tab 5: Security & API Keys */}
       {activeTab === 'security' && (
         <div className="space-y-6">
           <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
             <div className="border-b border-slate-800 pb-4">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <Cpu className="w-5 h-5 text-indigo-400" />
+                Bring Your Own API Key (BYOK)
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Optionally provide custom API keys for high-volume resume parsing and career assistant requests.
+              </p>
+            </div>
+
+            <form onSubmit={handleSaveApiKeys} className="space-y-4 max-w-md">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">OpenAI API Key (sk-...)</label>
+                <input
+                  type="password"
+                  placeholder="sk-proj-..."
+                  value={apiKeys.openaiKey}
+                  onChange={(e) => setApiKeys({ ...apiKeys, openaiKey: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Google Gemini API Key</label>
+                <input
+                  type="password"
+                  placeholder="AIzaSy..."
+                  value={apiKeys.geminiKey}
+                  onChange={(e) => setApiKeys({ ...apiKeys, geminiKey: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all"
+              >
+                <Save className="w-4 h-4" />
+                <span>Save API Keys</span>
+              </button>
+            </form>
+          </div>
+
+          <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+            <div className="border-b border-slate-800 pb-4">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
                 <Key className="w-5 h-5 text-indigo-400" />
-                Change Password & Authentication Security
+                Change Account Password
               </h2>
             </div>
 
@@ -680,7 +882,7 @@ const SettingsPage = () => {
               Data Portability & Full JSON Backup
             </h2>
             <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
-              Export all your tracked job applications, interview stage records, notes, and AI match scores into a clean, formatted JSON file.
+              Export all your tracked job applications, settings, custom prompts, and AI match scores into a formatted JSON file.
             </p>
 
             <button
@@ -689,13 +891,13 @@ const SettingsPage = () => {
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all"
             >
               <FileJson className="w-4 h-4 text-indigo-400" />
-              <span>Export Application History (.json)</span>
+              <span>Export Full JobFlow Backup (.json)</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* Tab 5: System Health & Demo Data */}
+      {/* Tab 6: System Health & Demo Data */}
       {activeTab === 'system' && (
         <div className="space-y-6">
           <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
