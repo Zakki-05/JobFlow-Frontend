@@ -35,6 +35,11 @@ const formatApiError = (err, fallbackMessage = 'An unexpected error occurred.') 
 
   if (typeof data === 'string') {
     if (data.includes('<html') || data.includes('<!DOCTYPE')) {
+      const titleMatch = data.match(/<title>(.*?)<\/title>/i);
+      if (titleMatch && titleMatch[1]) {
+        const cleanTitle = titleMatch[1].replace(/\s+/g, ' ').trim();
+        return `Server error (${status}): ${cleanTitle}`;
+      }
       if (status === 400) return `Server error (400): Bad Request`;
       if (status === 403) return 'Server error (403): Forbidden Access';
       if (status === 404) return 'Server error (404): Endpoint not found';
