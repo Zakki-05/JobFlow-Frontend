@@ -4,6 +4,51 @@ import { useToast } from './ToastContext';
 
 const AuthContext = createContext(null);
 
+const formatApiError = (err, fallbackMessage = 'An unexpected error occurred.') => {
+  if (!err.response) {
+    return err.message || 'Network error: Unable to connect to backend server.';
+  }
+
+  const { status, data } = err.response;
+
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    if (data.detail && typeof data.detail === 'string') {
+      return data.detail;
+    }
+    if (data.error && typeof data.error === 'string') {
+      return data.error;
+    }
+    if (data.message && typeof data.message === 'string') {
+      return data.message;
+    }
+
+    const fieldErrors = [];
+    for (const [key, val] of Object.entries(data)) {
+      const valStr = Array.isArray(val) ? val.join(', ') : String(val);
+      const cleanKey = key.replace(/_/g, ' ');
+      fieldErrors.push(`${cleanKey}: ${valStr}`);
+    }
+    if (fieldErrors.length > 0) {
+      return fieldErrors.join(' | ');
+    }
+  }
+
+  if (typeof data === 'string') {
+    if (data.includes('<html') || data.includes('<!DOCTYPE')) {
+      if (status === 400) return `Server error (400): Bad Request`;
+      if (status === 403) return 'Server error (403): Forbidden Access';
+      if (status === 404) return 'Server error (404): Endpoint not found';
+      if (status >= 500) return `Server error (${status}): Internal server error`;
+      return `Server error: HTTP ${status}`;
+    }
+    if (data.trim().length > 0 && data.trim().length < 200) {
+      return data.trim();
+    }
+  }
+
+  return fallbackMessage;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,7 +86,7 @@ export const AuthProvider = ({ children }) => {
       showToast('Welcome back to JobFlow!', 'success');
       return { success: true };
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Invalid username or password.';
+      const msg = formatApiError(err, 'Invalid username or password.');
       showToast(msg, 'error');
       return { success: false, error: msg };
     }
@@ -53,14 +98,7 @@ export const AuthProvider = ({ children }) => {
       showToast('Account created successfully! Logging you in...', 'success');
       return await login(userData.username, userData.password);
     } catch (err) {
-      const errObj = err.response?.data;
-      let msg = 'Registration failed. Please check your inputs.';
-      if (errObj) {
-        if (typeof errObj === 'object') {
-          const firstKey = Object.keys(errObj)[0];
-          msg = `${firstKey}: ${errObj[firstKey]}`;
-        }
-      }
+      const msg = formatApiError(err, 'Registration failed. Please check your inputs.');
       showToast(msg, 'error');
       return { success: false, error: msg };
     }
@@ -80,14 +118,9 @@ export const AuthProvider = ({ children }) => {
       showToast('Profile updated successfully!', 'success');
       return { success: true };
     } catch (err) {
-      const errData = err.response?.data;
-      let msg = 'Failed to update profile.';
-      if (errData && typeof errData === 'object') {
-        const key = Object.keys(errData)[0];
-        msg = `${key}: ${Array.isArray(errData[key]) ? errData[key].join(', ') : errData[key]}`;
-      }
+      const msg = formatApiError(err, 'Failed to update profile.');
       showToast(msg, 'error');
-      return { success: false };
+      return { success: false, error: msg };
     }
   };
 

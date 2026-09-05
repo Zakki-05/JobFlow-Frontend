@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { User, Mail, Lock, Loader2 } from 'lucide-react';
 
 const RegisterPage = () => {
   const { register } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -24,6 +26,10 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.password !== formData.password_confirm) {
+      showToast('Passwords do not match.', 'error');
+      return;
+    }
     setLoading(true);
     const result = await register(formData);
     setLoading(false);
