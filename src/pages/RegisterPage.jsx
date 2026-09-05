@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { User, Mail, Lock, Loader2, Flame } from 'lucide-react';
+import { User, Mail, Lock, Loader2, Flame, Eye, EyeOff } from 'lucide-react';
 
 const RegisterPage = () => {
   const { register } = useAuth();
@@ -18,6 +18,8 @@ const RegisterPage = () => {
     password_confirm: '',
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -31,15 +33,22 @@ const RegisterPage = () => {
       return;
     }
     setLoading(true);
-    const result = await register(formData);
+    const cleanData = {
+      ...formData,
+      username: formData.username.trim(),
+      email: formData.email.trim(),
+      first_name: formData.first_name.trim(),
+      last_name: formData.last_name.trim(),
+    };
+    const result = await register(cleanData);
     setLoading(false);
     if (result.success) {
       navigate('/dashboard');
     }
   };
 
-  const inputClass = "w-full bg-[#1a1a2e] border border-[#FF6B35]/15 rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#6B5B4F] focus:outline-none focus:border-[#FF6B35] focus:shadow-[0_0_0_3px_rgba(255,107,53,0.1)]";
-  const inputWithIconClass = "w-full bg-[#1a1a2e] border border-[#FF6B35]/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#6B5B4F] focus:outline-none focus:border-[#FF6B35] focus:shadow-[0_0_0_3px_rgba(255,107,53,0.1)]";
+  const inputClass = "w-full bg-[#1a1a2e] border border-[#FF6B35]/15 rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#6B5B4F] focus:outline-none focus:border-[#FF6B35] focus:shadow-[0_0_0_3px_rgba(255,107,53,0.1)] transition-all";
+  const inputWithIconClass = "w-full bg-[#1a1a2e] border border-[#FF6B35]/15 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder-[#6B5B4F] focus:outline-none focus:border-[#FF6B35] focus:shadow-[0_0_0_3px_rgba(255,107,53,0.1)] transition-all";
 
   return (
     <div className="min-h-screen bg-[#0f0f1a] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -127,14 +136,22 @@ const RegisterPage = () => {
               <div className="relative">
                 <Lock className="w-4 h-4 text-[#9A8C7D] absolute left-3.5 top-3" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   required
+                  minLength={8}
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="At least 8 characters"
                   className={inputWithIconClass}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-[#9A8C7D] hover:text-[#E8D5C4] transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -143,14 +160,22 @@ const RegisterPage = () => {
               <div className="relative">
                 <Lock className="w-4 h-4 text-[#9A8C7D] absolute left-3.5 top-3" />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   name="password_confirm"
                   required
+                  minLength={8}
                   value={formData.password_confirm}
                   onChange={handleChange}
                   placeholder="Repeat password"
                   className={inputWithIconClass}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-3 text-[#9A8C7D] hover:text-[#E8D5C4] transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 

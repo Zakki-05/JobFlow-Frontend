@@ -141,6 +141,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const resetPassword = async (usernameOrEmail, newPassword) => {
+    try {
+      const response = await api.post('/auth/reset-password/', {
+        username_or_email: usernameOrEmail,
+        new_password: newPassword,
+      });
+      showToast(response.data.detail || 'Password updated successfully!', 'success');
+      return { success: true, message: response.data.detail, username: response.data.username };
+    } catch (err) {
+      const msg = formatApiError(err, 'Failed to reset password.');
+      showToast(msg, 'error');
+      return { success: false, error: msg };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -152,6 +167,7 @@ export const AuthProvider = ({ children }) => {
         updateProfile,
         triggerSeedData,
         fetchProfile,
+        resetPassword,
       }}
     >
       {children}
