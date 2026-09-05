@@ -12,7 +12,7 @@ const ScoreGauge = ({ score = 0, size = 'md', showLabel = true }) => {
     colorClass = 'text-amber-400 bg-amber-950/60 border-amber-500/30';
     level = 'LOW MATCH';
   } else if (rounded < 80) {
-    colorClass = 'text-indigo-400 bg-indigo-950/60 border-indigo-500/30';
+    colorClass = 'text-[#FF6B35] bg-[#FF6B35]/10 border-[#FF6B35]/30';
     level = 'MODERATE MATCH';
   }
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { User, Mail, Lock, Loader2 } from 'lucide-react';
+import { User, Mail, Lock, Loader2, Flame } from 'lucide-react';
 
 const RegisterPage = () => {
   const { register } = useAuth();
@@ -38,60 +38,62 @@ const RegisterPage = () => {
     }
   };
 
+  const inputClass = "w-full bg-[#1a1a2e] border border-[#FF6B35]/15 rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#6B5B4F] focus:outline-none focus:border-[#FF6B35] focus:shadow-[0_0_0_3px_rgba(255,107,53,0.1)]";
+  const inputWithIconClass = "w-full bg-[#1a1a2e] border border-[#FF6B35]/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#6B5B4F] focus:outline-none focus:border-[#FF6B35] focus:shadow-[0_0_0_3px_rgba(255,107,53,0.1)]";
+
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-[#0f0f1a] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[#FF6B35]/8 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[300px] bg-[#FFB347]/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center relative z-10">
         <Link to="/" className="inline-flex items-center gap-3 group">
-          <img
-            src="/logo.png"
-            alt="JobFlow AI Logo"
-            className="w-12 h-12 rounded-2xl object-cover shadow-xl shadow-indigo-500/30 group-hover:scale-105 transition-transform"
-          />
-          <span className="text-2xl font-black tracking-tight text-white">JobFlow AI</span>
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF6B35] to-[#FFB347] flex items-center justify-center shadow-xl shadow-[#FF6B35]/30 group-hover:scale-105 transition-transform">
+            <Flame className="w-6 h-6 text-white" />
+          </div>
+          <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-[#FF6B35] via-[#FFB347] to-[#FF8C6B] bg-clip-text text-transparent">JobFlow AI</span>
         </Link>
 
-        <h2 className="mt-6 text-2xl font-bold tracking-tight text-slate-100">
+        <h2 className="mt-6 text-2xl font-bold tracking-tight text-[#FFF5EE]">
           Create your JobFlow account
         </h2>
-        <p className="mt-2 text-xs text-slate-400">
+        <p className="mt-2 text-xs text-[#9A8C7D]">
           Start tracking job applications and analyzing matches in minutes.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="glass-panel py-8 px-6 sm:px-10 rounded-3xl border border-slate-800 shadow-2xl">
+        <div className="glass-panel py-8 px-6 sm:px-10 rounded-3xl border border-[#FF6B35]/15 shadow-2xl shadow-[#FF6B35]/5">
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">First Name</label>
+                <label className="block text-xs font-semibold text-[#E8D5C4] mb-1">First Name</label>
                 <input
                   type="text"
                   name="first_name"
                   value={formData.first_name}
                   onChange={handleChange}
                   placeholder="John"
-                  className="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className={inputClass}
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Last Name</label>
+                <label className="block text-xs font-semibold text-[#E8D5C4] mb-1">Last Name</label>
                 <input
                   type="text"
                   name="last_name"
                   value={formData.last_name}
                   onChange={handleChange}
                   placeholder="Doe"
-                  className="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className={inputClass}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Username *</label>
+              <label className="block text-xs font-semibold text-[#E8D5C4] mb-1">Username *</label>
               <div className="relative">
-                <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <User className="w-4 h-4 text-[#9A8C7D] absolute left-3.5 top-3" />
                 <input
                   type="text"
                   name="username"
@@ -99,15 +101,15 @@ const RegisterPage = () => {
                   value={formData.username}
                   onChange={handleChange}
                   placeholder="johndoe"
-                  className="w-full bg-slate-900/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className={inputWithIconClass}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Email Address *</label>
+              <label className="block text-xs font-semibold text-[#E8D5C4] mb-1">Email Address *</label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <Mail className="w-4 h-4 text-[#9A8C7D] absolute left-3.5 top-3" />
                 <input
                   type="email"
                   name="email"
@@ -115,15 +117,15 @@ const RegisterPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="john@example.com"
-                  className="w-full bg-slate-900/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className={inputWithIconClass}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Password *</label>
+              <label className="block text-xs font-semibold text-[#E8D5C4] mb-1">Password *</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <Lock className="w-4 h-4 text-[#9A8C7D] absolute left-3.5 top-3" />
                 <input
                   type="password"
                   name="password"
@@ -131,15 +133,15 @@ const RegisterPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="At least 8 characters"
-                  className="w-full bg-slate-900/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className={inputWithIconClass}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Confirm Password *</label>
+              <label className="block text-xs font-semibold text-[#E8D5C4] mb-1">Confirm Password *</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <Lock className="w-4 h-4 text-[#9A8C7D] absolute left-3.5 top-3" />
                 <input
                   type="password"
                   name="password_confirm"
@@ -147,7 +149,7 @@ const RegisterPage = () => {
                   value={formData.password_confirm}
                   onChange={handleChange}
                   placeholder="Repeat password"
-                  className="w-full bg-slate-900/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className={inputWithIconClass}
                 />
               </div>
             </div>
@@ -155,15 +157,15 @@ const RegisterPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-semibold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-50 mt-4"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#FF6B35] to-[#FFB347] hover:from-[#FF8C6B] hover:to-[#FFB347] text-white shadow-lg shadow-[#FF6B35]/25 transition-all disabled:opacity-50 mt-4"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create Account'}
             </button>
           </form>
 
-          <div className="mt-6 text-center text-xs text-slate-400">
+          <div className="mt-6 text-center text-xs text-[#9A8C7D]">
             Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-indigo-400 hover:underline">
+            <Link to="/login" className="font-semibold text-[#FF6B35] hover:underline">
               Sign in
             </Link>
           </div>
